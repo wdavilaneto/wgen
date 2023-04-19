@@ -1,0 +1,47 @@
+{
+  "project": {
+    "group": "@wdn",
+    "name": "example"
+  },
+  "entity": {
+    "name": "User",
+    "properties": [
+      {
+        "name": "first_name",
+        "type": "string"
+      },
+      {
+        "name": "last_name",
+        "type": "string"
+      },
+      {
+        "name": "email",
+        "type": "string"
+      },
+      {
+        "name": "password",
+        "type": "string"
+      },
+      {
+        "name": "phone",
+        "type": "string"
+      },
+      {
+        "name": "user_status",
+        "type": "number"
+      },
+      {
+        "name": "created_at",
+        "type": "Date"
+      },
+      {
+        "name": "updated_at",
+        "type": "Date"
+      },
+      {
+        "name": "deleted_at",
+        "type": "Date"
+      }
+    ]
+  }
+}

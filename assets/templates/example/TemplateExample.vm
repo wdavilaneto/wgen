@@ -1,0 +1,11 @@
+## package ${project.group}.${project.name}.domain
+/**
+ *  Entity: ${entity.name}
+ *  Guick Generate class:
+ *  https://github.com/wdavilaneto/guick
+ *  Author: service-wdavilaneto@gmail.com porra
+ */
+class ${entity.name} {
+#foreach( ${attribute} in ${entity.properties})  private ${attribute.name}:${attribute.type}
+#end
+}

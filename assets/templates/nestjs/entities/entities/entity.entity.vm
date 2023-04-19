@@ -1,0 +1,10 @@
+export class ${entity.name} {
+
+  // public id: any;
+
+#foreach( ${property} in ${entity.getProperties()})
+  public ${property.getName()}: ${property.getType()};
+#end
+
+
+}
