@@ -1,5 +1,6 @@
 import * as fs from "fs";
-import { GenerationContext, GenerationType } from "../TemplateEngine";
+import { GenerationContext, GenerationType } from "./TemplateEngine";
+import patternConverter from "../PatternConverter";
 
 export default class Template {
   private path: string;
@@ -19,19 +20,20 @@ export default class Template {
 
   getOutput(name?: string) {
     let resultPath: string;
-    if (this.isPerEntity()) {
-      resultPath = this.outputPath.replace(GenerationType.ENTITY, "").replaceAll("entity", name);
+    if (this.isPerEntity() && name !== undefined) {
+      const snakeCaseName = patternConverter.toSnakeCase(name);
+      resultPath = this.outputPath.replace(GenerationType.ENTITY, "").replaceAll("entity", snakeCaseName);
+      return resultPath + "\\" + this.filename.replace("entity", snakeCaseName).replace(".vm", "");
     } else {
       resultPath = this.outputPath.replace(GenerationType.SINGLE, "");
+      return resultPath + "\\" + this.filename.replace(".vm", "");
     }
-    return resultPath + "\\" + this.filename.replaceAll("entity", name).replace(".vm", "");
   }
-
   getCompleteFileName() {
     return this.path + "\\" + this.filename;
   }
   getContent() {
-    return fs.readFileSync(this.getCompleteFileName()).toString();
+    return fs.readFileSync(this.getCompleteFileName(), { encoding: "utf8" }).toString();
   }
   isPerEntity() {
     return this.outputPath.includes(GenerationType.ENTITY);

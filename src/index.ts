@@ -1,29 +1,32 @@
 #! /usr/bin/env node
 import fs from "fs";
 import TableEntityMapper from "./core/TableEntityMapper";
-
-import TemplateEngine, { GenerationContext } from "./core/TemplateEngine";
+import TemplateEngine, { GenerationContext } from "./core/template/TemplateEngine";
 import jc from "json-cycle";
 import OracleRetriever from "./reader/oracle/OracleLoader";
 import JsonSlurper from "./reader/JsonSlurper";
 
 async function bootstrap() {
   const t2e = new TableEntityMapper();
-  // const loader = new OracleRetriever();
-  // const tables = await loader.findTables("MIRP");
-  // fs.writeFileSync("result.json", JSON.stringify(jc.decycle(tables)));
 
-  // const entities = t2e.generateModel(tables);
-  // fs.writeFileSync("entities.json", JSON.stringify(jc.decycle(entities)));
-
-  const jsonTables = jc.retrocycle(JSON.parse(fs.readFileSync("result.json", "utf8")));
-  const slurper = new JsonSlurper();
-  const tables = slurper.toTables(jsonTables);
+  const origin = "oracle";
+  let tables: any[] = [];
+  if (origin !== "oracle") {
+    const loader = new OracleRetriever();
+    tables = await loader.findTables("MIRP");
+    fs.writeFileSync("result.json", JSON.stringify(jc.decycle(tables)));
+  } else {
+    const jsonTables = jc.retrocycle(JSON.parse(fs.readFileSync("result.json", "utf8")));
+    const slurper = new JsonSlurper();
+    tables = slurper.toTables(jsonTables);
+  }
   const entities = t2e.generateModel(tables);
+  // fs.writeFileSync("entities.json", JSON.stringify(jc.decycle(entities)));
   // console.log(entities);
+  // outputPath: "..\\generated\\policial\\apps\\policial\\src",
   const context: GenerationContext = {
     archetype: "nestjs",
-    outputPath: "..\\generated\\",
+    outputPath: "..\\generated\\policial\\apps\\policial\\src",
     entities: entities,
     tables: tables,
   };

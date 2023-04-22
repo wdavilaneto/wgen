@@ -1,0 +1,20 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { ${entity.getName()}Controller } from './${entity.getSnakeCaseName()}.controller';
+import { ${entity.getName()}Service } from './${entity.getSnakeCaseName()}.service';
+
+describe('${entity.getName()}Controller', () => {
+  let controller: ${entity.getName()}Controller;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [${entity.getName()}Controller],
+      providers: [${entity.getName()}Service],
+    }).compile();
+
+    controller = module.get<${entity.getName()}Controller>(${entity.getName()}Controller);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+});

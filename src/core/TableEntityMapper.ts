@@ -1,34 +1,33 @@
-import Entity from "../model/Entity";
-import Table from "../model/relational/table";
-import PatternConverter from "../core/PatternConverter";
-import RelationshipProperty from "../model/RelationshipProperty";
-import { Constraint } from "@App/model/relational/constraint";
 import ComplexProperty from "@App/model/ComplexProperty";
+import { ColumnPair, Constraint } from "@App/model/relational/constraint";
+import patternConverter from "../core/PatternConverter";
+import Entity from "../model/Entity";
+import RelationshipProperty from "../model/RelationshipProperty";
+import Table from "../model/relational/table";
 
 export default class TableEntityMapper {
-  private patternConverter: PatternConverter = new PatternConverter();
+  constructor() {}
 
-  private toEntityWithSimpleProperties(table: Table): Entity {
+  private createEntity(table: Table): Entity {
     const entity = new Entity();
     entity.table = table;
     entity.table.entity = entity; // set circular reference
-    entity.name = this.patternConverter.getEntityName(table);
+    entity.name = patternConverter.getEntityName(table);
     // entity.table.entity = entity;
     // entity.id = table.columns.find((column) => column.isKey());
-    table.columns.forEach((column) => {
+    // table.columns.forEach((column) => {
+    for (const column of table.columns) {
       // make sure the column is not a key or key part
       if (!column.isKey()) {
-        const property: RelationshipProperty = new RelationshipProperty();
-        property.column = column;
-        property.entity = entity;
-        property.name = this.patternConverter.getPropertyName(column);
+        const property: RelationshipProperty = new RelationshipProperty(column, entity);
+        property.name = patternConverter.getPropertyName(column);
         if (column.isKey() && table.getPk().length === 1) {
           entity.id = property;
         } else {
           entity.properties.push(property);
         }
       }
-    });
+    }
     if (table.inheritanceTable === null) {
       if (table.getPk() == null || table.getPk().length === 0) {
         console.error("Table " + table.name + " has no primary key");
@@ -40,7 +39,7 @@ export default class TableEntityMapper {
           const propertyIndex = entity.properties.findIndex((p) => p.column.name === column.name);
           if (propertyIndex > -1) {
             // remove ja que a propriedade sera migrada para entity pk ..
-            delete entity.properties[propertyIndex];
+            entity.properties.splice(propertyIndex, 1);
           } else {
             console.error(
               "Table " + table.name + " has composite primary key but column " + column.name + " is not a property"
@@ -75,12 +74,12 @@ export default class TableEntityMapper {
     const otherEntity = table.constraints[1].referedTable.entity;
 
     const complexProperty = new ComplexProperty(otherEntity, table.constraints[0]);
-    complexProperty.name = this.patternConverter.getComplexPropertyName(otherEntity, complexProperty.name) + "List";
+    complexProperty.name = patternConverter.getComplexPropertyName(otherEntity, complexProperty.name) + "List";
     thisEntity.complexProperties.push(complexProperty);
     complexProperty.nmTable = table;
 
     const referedProperty = new ComplexProperty(thisEntity, table.constraints[1]);
-    referedProperty.name = this.patternConverter.getComplexPropertyName(thisEntity, referedProperty.name) + "List";
+    referedProperty.name = patternConverter.getComplexPropertyName(thisEntity, referedProperty.name) + "List";
     otherEntity.complexProperties.push(referedProperty);
     referedProperty.nmTable = table;
 
@@ -97,59 +96,37 @@ export default class TableEntityMapper {
       // Se o cara NAO for um entityID OU for um campo que eh parte da CHAVE do EntityID .. processa a chave composta
       if (!entity.isEmbeddable() || (entity.isEmbeddable() && conaintsAllKeys)) {
         // ToOne Complex property
-        const complexProperty: ComplexProperty = new ComplexProperty(entity);
+        const complexProperty: ComplexProperty = new ComplexProperty(entity, constraint);
         complexProperty.constraint = constraint;
         complexProperty.referedEntity = constraint.referedTable.entity;
         if (complexProperty.referedEntity == null) {
           console.error("Refered Entity is null", constraint.referedTable.name);
         }
-
-        if (constraint.isSingleColumn()) {
-          const thisPrefix = constraint.getSingleColumnPair().column.getPrefix();
-          const otherKeyName = constraint.getSingleColumnPair().referedColumn.name;
-          let fieldBasedOnFKColumnName = constraint
-            .getSingleColumnPair()
-            .column.name.replace(thisPrefix + "_", "")
-            .replace(otherKeyName, "");
-          //println "${constraint.singleColumnPair.coluna.name} - ${otherKeyName} = $fieldBasedOnFKColumnName "
-          if (fieldBasedOnFKColumnName.length > 4) {
-            const columnName = this.patternConverter.columnToPropertyName(constraint.getSingleColumnPair().column);
-            fieldBasedOnFKColumnName = this.patternConverter.getComplexPropertyName(entity, columnName);
-            if (fieldBasedOnFKColumnName.length > 4) {
-              complexProperty.name = fieldBasedOnFKColumnName;
-            } else {
-              complexProperty.name = this.patternConverter.getComplexPropertyName(entity, complexProperty.name);
-            }
-          } else {
-            // such a short field name .. lets try somthing diferent
-            complexProperty.name = this.patternConverter.getComplexPropertyName(entity, complexProperty.name);
-          }
-        } else {
-          complexProperty.name = this.patternConverter.getComplexPropertyName(entity, complexProperty.name);
-        }
-
+        const column = constraint.getThisSideColumns().pop();
+        complexProperty.name = patternConverter.getPropertyName(column);
+        complexProperty.name += complexProperty.referedEntity.name;
+        // Realize  other side ToMany Relationship
+        const referedProperty = this.processOtherSideComplexProperties(entity, complexProperty);
+        complexProperty.mappedBy = referedProperty.name;
         entity.complexProperties.push(complexProperty);
-
-        // ToMany Property create
-        const referedProperty = new ComplexProperty(entity);
-        referedProperty.name = this.patternConverter.getComplexPropertyName(
-          complexProperty.referedEntity,
-          referedProperty.name
-        );
-        referedProperty.mappedBy = complexProperty.name;
-        complexProperty.referedEntity.complexProperties.push(referedProperty);
-
-        for (const columnPair of constraint.columnPairs) {
-          const index = entity.properties.findIndex((p) => p.column.name === columnPair.column.name);
-          delete entity.properties[index];
-        }
-        if (entity.containsPropertyName(complexProperty.name)) {
-          complexProperty.name += "Entity";
-        }
-        return { complexProperty: complexProperty, referedProperty: referedProperty };
       }
-      return null;
     }
+  }
+  private processOtherSideComplexProperties(entity: Entity, complexProperty: ComplexProperty) {
+    const constraint = complexProperty.constraint;
+    const otherEntiy = complexProperty.referedEntity;
+    // for ToMany property we dont need the constraint on entity ..
+    const referedProperty = new ComplexProperty(entity);
+    const column = constraint.getThisSideColumns().pop();
+    const name = patternConverter.getPropertyName(column);
+    referedProperty.name = this.getPropertyName(otherEntiy, name) + entity.name + "List";
+    referedProperty.mappedBy = complexProperty.name;
+    for (const columnPair of constraint.columnPairs) {
+      const index = entity.properties.findIndex((p: RelationshipProperty) => p.column.name === columnPair.column.name);
+      entity.properties.splice(index, 1);
+    }
+    complexProperty.referedEntity.complexProperties.push(referedProperty);
+    return referedProperty;
   }
 
   private proccessComplexProperties(entities: Entity[]) {
@@ -166,9 +143,23 @@ export default class TableEntityMapper {
 
   generateModel(tables: Table[]) {
     const nonNMTables: Table[] = tables.filter((table: Table) => !table.isNmRelationShip());
-    const entities: Entity[] = nonNMTables.map((table) => this.toEntityWithSimpleProperties(table));
+    const entities: Entity[] = nonNMTables.map((table) => this.createEntity(table));
     this.processInheritance(entities);
     this.proccessComplexProperties(entities);
+    for (const table of tables.filter((table: Table) => table.isNmRelationShip())) {
+      //this.createNmComplexProperty(table);
+    }
+    // processEmbadableEntityes(entityList)
+    // generateEnums(entityList)
     return entities;
+  }
+
+  private getPropertyName(entity: Entity, propertyName: string, counter = 0) {
+    const name = propertyName + (!counter ? "" : counter);
+    if (!entity.containsPropertyName(name)) {
+      return name;
+    } else {
+      return this.getPropertyName(entity, propertyName, counter + 1);
+    }
   }
 }

@@ -68,7 +68,7 @@ export class TableMapper {
               if (!constraint.referedTable) {
                 console.warn("Refered table not found: " + element.R_TABLE_NAME);
               }
-              //table.constraints.push(constraint);
+              table.constraints.push(constraint);
             }
             column = table.columns.find((column: Column) => column.name === element.COLUMN_NAME);
             rColumn = constraint.referedTable?.columns.find((column: Column) => column.name === element.R_COLUMN_NAME);
@@ -76,7 +76,7 @@ export class TableMapper {
               console.log("Column not found: " + element.COLUMN_NAME + "on table" + element.TABLE_NAME);
               console.log("Constraint: " + element.CONSTRAINT_NAME + " refered Column:    " + element.R_COLUMN_NAME);
             }
-            const pair: ColumnPair = { column: column, referedColumn: rColumn };
+            const pair: ColumnPair = new ColumnPair(column, rColumn);
             constraint.columnPairs.push(pair);
             break;
           case "U":

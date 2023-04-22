@@ -18,8 +18,8 @@ class JsonSlurper {
     table.columns.push(...columns);
 
     const contraints: Constraint[] = [];
-    for (let i = 0; i < table.constraints.length; i++) {
-      const constraint = Object.assign(new Constraint(), table.constraints[i]);
+    for (const contraint of table.constraints) {
+      const constraint = Object.assign(new Constraint(), contraint);
       constraint.table = table;
       contraints.push(constraint);
     }

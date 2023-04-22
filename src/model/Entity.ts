@@ -1,3 +1,5 @@
+import patternConverter from "@App/core/PatternConverter";
+import ComplexProperty from "./ComplexProperty";
 import RelationshipProperty from "./RelationshipProperty";
 import Table from "./relational/table";
 
@@ -35,16 +37,48 @@ export default class Entity extends Clazz {
   getId(): any {
     return this.embeddedId ? this.embeddedId : this.parent ? this.parent.getId() : this.id;
   }
-  getOneToManyProperties(): any[] {
-    return this.properties.filter((property: any) => property.isOneToMany());
+  getOneToManyProperties(): ComplexProperty[] {
+    return this.complexProperties.filter((property: ComplexProperty) => property.isOneToMany());
   }
-  getManyToOneProperties(): any[] {
-    return this.properties.filter((property: any) => property.isManyToOne());
+  getManyToOneProperties(): ComplexProperty[] {
+    return this.complexProperties.filter((property: ComplexProperty) => property.isManyToOne());
   }
-  getManyToManyProperties(): any[] {
-    return this.properties.filter((property: any) => property.isManyToMany());
+  getManyToManyProperties(): ComplexProperty[] {
+    return this.complexProperties.filter((property: ComplexProperty) => property.isManyToMany());
   }
   containsPropertyName(name: string): boolean {
-    return this.properties.some((property: any) => property.name === name);
+    return (
+      this.properties.some((property: any) => property.name === name) ||
+      this.complexProperties.some((property: any) => property.name === name)
+    );
+  }
+  getDistinctedAllComplexProperties(): any[] {
+    // creaite a dictionary to avoid duplicate properties
+    const map = new Map();
+    const returnList = [];
+    for (const property of this.complexProperties) {
+      if (!map[property.referedEntity.name]) {
+        map[property.referedEntity.name] = property.name;
+        returnList.push(property);
+      }
+    }
+    if (this.parent) {
+      for (const property of this.parent.complexProperties) {
+        if (!map[property.referedEntity.name]) {
+          map[property.referedEntity.name] = property.name;
+          returnList.push(property);
+        }
+      }
+    }
+    return returnList;
+  }
+  getSnakeCaseName(): string {
+    return patternConverter.toSnakeCase(this.name);
+  }
+  getCamelCaseName(): string {
+    return patternConverter.toCamelCase(this.name);
+  }
+  getBeanPattern(): string {
+    return this.name.charAt(0).toLowerCase() + this.name.slice(1);
   }
 }

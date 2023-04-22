@@ -16,10 +16,9 @@ export enum ConstraintType {
   PrimaryKey,
   CodeConstraint,
 }
-export type ColumnPair = {
-  column: Column;
-  referedColumn: Column;
-};
+export class ColumnPair {
+  constructor(public column: Column, public referedColumn: Column) {}
+}
 
 export class Constraint {
   name?: string;

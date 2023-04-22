@@ -1,0 +1,26 @@
+import { Injectable } from '@nestjs/common';
+import { Create${entity.getName()}Dto } from './dto/create-${entity.getSnakeCaseName()}.dto';
+import { Update${entity.getName()}Dto } from './dto/update-${entity.getSnakeCaseName()}.dto';
+
+@Injectable()
+export class ${entity.getName()}Service {
+  create(create${entity.getName()}Dto: Create${entity.getName()}Dto) {
+    return 'This action adds a new ${entity.getSnakeCaseName()}';
+  }
+
+  findAll() {
+    return `This action returns all ${entity.getSnakeCaseName()}`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} ${entity.getSnakeCaseName()}`;
+  }
+
+  update(id: number, update${entity.getName()}Dto: Update${entity.getName()}Dto) {
+    return `This action updates a #${id} ${entity.getSnakeCaseName()}`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} ${entity.getSnakeCaseName()}`;
+  }
+}

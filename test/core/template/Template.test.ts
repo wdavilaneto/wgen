@@ -1,7 +1,7 @@
 import chai, { expect } from "chai";
-import { GenerationContext } from "@App/core/TemplateEngine";
+import { GenerationContext } from "@App/core/template/TemplateEngine";
 // import { Template } from "@App/core/fst/FileTemplateService";
-import Template from "@App/core/fst/Template";
+import Template from "@App/core/template/Template";
 import exp from "constants";
 
 describe("FileTemplateService Tests", () => {
@@ -30,7 +30,7 @@ describe("FileTemplateService Tests", () => {
     expect(template.getFileName()).to.be.equals("entity.test1.ts.vm");
     expect(template.isSingle()).to.be.false;
     expect(template.isPerEntity()).to.be.true;
-    expect(template.getOutput("Mock")).to.be.equals("..\\generated\\policial\\src\\Mock.test1.ts");
+    expect(template.getOutput("Mock")).to.be.equals("..\\generated\\policial\\src\\mock.test1.ts");
     expect(template.getContent()).to.be.equals("2");
 
     template = new Template(input3, RESULT_BASE_PATH);
@@ -38,7 +38,7 @@ describe("FileTemplateService Tests", () => {
     expect(template.isSingle()).to.be.false;
     expect(template.isPerEntity()).to.be.true;
     expect(template.getOutput("Mock")).to.be.equals(
-      "..\\generated\\policial\\src\\subfolder\\Mock-something\\Mock-named-folder.test.ts"
+      "..\\generated\\policial\\src\\subfolder\\mock-something\\mock-named-folder.test.ts"
     );
     expect(template.getContent()).to.be.equals("3");
   });

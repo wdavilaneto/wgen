@@ -1,9 +1,9 @@
 {
   "verbose": true,
-  "watch": ["src", "templates", "package.json", "tsconfig.json"],
+  "watch": ["src", "assets/templates", "package.json", "tsconfig.json"],
   "ignore": ["dist", "node_modules", ".git", "**/*.test.ts", "**/*.spec.ts", "test", "**/docs/**"],
   "ext": ".ts,.js,.json,.vm",
-  "exec": "npx ts-node-dev -r tsconfig-paths/register -r ts-node/register ./src/index.ts",
+  "exec": "npx ts-node -r tsconfig-paths/register -r ts-node/register ./src/index.ts",
   "env": {
     "NODE_ENV": "development"
   }

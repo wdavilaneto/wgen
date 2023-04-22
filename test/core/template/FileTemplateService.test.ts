@@ -1,7 +1,7 @@
 import chai, { expect } from "chai";
-import { GenerationContext } from "@App/core/TemplateEngine";
-import FileTemplateService from "@App/core/fst/FileTemplateService";
-import Template from "@App/core/fst/Template";
+import { GenerationContext } from "@App/core/template/TemplateEngine";
+import FileTemplateService from "@App/core/template/FileTemplateService";
+import Template from "@App/core/template/Template";
 
 describe("FileTemplateService Tests", () => {
   let fileTemaplte: FileTemplateService;
@@ -24,7 +24,6 @@ describe("FileTemplateService Tests", () => {
   it("From same archetype, all files have output", async () => {
     templateList = await fileTemaplte.getAllTemplates();
     for (const template of templateList) {
-      console.log(template.getOutput());
       expect(template.getOutput()).to.be.not.empty;
     }
   });

@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import { readdir } from "node:fs/promises";
-import { GenerationContext, GenerationType } from "../TemplateEngine";
+import { GenerationContext, GenerationType } from "./TemplateEngine";
 import { join } from "node:path";
 import Template from "./Template";
 // import fse from "fs-extra";

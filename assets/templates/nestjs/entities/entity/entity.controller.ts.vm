@@ -1,0 +1,37 @@
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { ${entity.getName()}Service } from './${entity.getSnakeCaseName()}.service';
+import { Create${entity.getName()}Dto } from './dto/create-${entity.getSnakeCaseName()}.dto';
+import { Update${entity.getName()}Dto } from './dto/update-${entity.getSnakeCaseName()}.dto';
+
+@Controller('${entity.getSnakeCaseName()}')
+export class ${entity.getName()}Controller {
+  constructor(private readonly ${entity.getCamelCaseName()}Service: ${entity.getName()}Service) {}
+
+  @Post()
+  create(@Body() create${entity.getName()}Dto: Create${entity.getName()}Dto) {
+    return this.${entity.getCamelCaseName()}Service.create(create${entity.getName()}Dto);
+  }
+
+  @Get()
+  findAll() {
+    return this.${entity.getCamelCaseName()}Service.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.${entity.getCamelCaseName()}Service.findOne(+id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id') id: string, 
+    @Body() update${entity.getName()}Dto: Update${entity.getName()}Dto
+  ) {
+    return this.${entity.getCamelCaseName()}Service.update(+id, update${entity.getName()}Dto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.${entity.getCamelCaseName()}Service.remove(+id);
+  }
+}

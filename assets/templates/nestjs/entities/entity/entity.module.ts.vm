@@ -1,0 +1,9 @@
+import { Module } from '@nestjs/common';
+import { ${entity.getName()}Service } from './${entity.getSnakeCaseName()}.service';
+import { ${entity.getName()}Controller } from './${entity.getSnakeCaseName()}.controller';
+
+@Module({
+  controllers: [${entity.getName()}Controller],
+  providers: [${entity.getName()}Service],
+})
+export class ${entity.getName()}Module {}
