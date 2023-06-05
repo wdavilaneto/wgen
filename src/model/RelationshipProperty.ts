@@ -23,4 +23,7 @@ export default class RelationshipProperty extends Clazz {
   getSnakeCaseType(): string {
     return patternConverter.toSnakeCase(this.getType());
   }
+  getApiPattern(): string {
+    return patternConverter.toSnakeCase(this.name, "_");
+  }
 }

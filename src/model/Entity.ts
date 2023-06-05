@@ -81,4 +81,7 @@ export default class Entity extends Clazz {
   getBeanPattern(): string {
     return this.name.charAt(0).toLowerCase() + this.name.slice(1);
   }
+  getApiPattern(): string {
+    return patternConverter.toSnakeCase(this.name, "_");
+  }
 }

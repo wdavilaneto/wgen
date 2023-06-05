@@ -148,6 +148,7 @@ export default class TableEntityMapper {
     this.proccessComplexProperties(entities);
     for (const table of tables.filter((table: Table) => table.isNmRelationShip())) {
       //this.createNmComplexProperty(table);
+      console.log("NM Table", table.name);
     }
     // processEmbadableEntityes(entityList)
     // generateEnums(entityList)

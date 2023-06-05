@@ -1,1 +1,6 @@
-export class Create${entity.getName()}Dto {}
+export class Create${entity.getName()}Dto {
+#foreach( ${property} in ${entity.getProperties()})
+  readonly ${property.getApiPattern()}: ${property.getType()};
+#end
+
+}

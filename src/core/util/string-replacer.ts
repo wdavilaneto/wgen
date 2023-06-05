@@ -10,6 +10,8 @@ const defaultReplacer: ConfigReplacer = {
     ds: "descricao",
     tp: "tipo",
     dt: "data",
+    dpimDk: "",
+    orgi: "orgaoId",
   },
   suffix: {
     Policia: "",

@@ -1,0 +1,28 @@
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+#foreach ( ${entity} in ${entities} )
+import { ${entity.getName()} } from './${entity.getSnakeCaseName()}/${entity.getSnakeCaseName()}.entity';#end
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: "oracle",
+      connectString: "",
+      port: 1521,
+      username: "",
+      password: "",
+      database: "desenv",
+      entities: [#foreach ( ${entity} in ${entities} )      
+        ${entity.getName()},#end
+      ],
+    }),
+    DelegaciaModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+
+// 358887

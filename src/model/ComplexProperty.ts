@@ -43,4 +43,7 @@ export default class ComplexProperty extends Clazz {
   getSnakeCaseType(): string {
     return patternConverter.toSnakeCase(this.getType());
   }
+  getApiPattern(): string {
+    return patternConverter.toSnakeCase(this.name, "_");
+  }
 }

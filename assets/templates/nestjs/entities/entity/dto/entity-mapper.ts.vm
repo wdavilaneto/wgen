@@ -1,0 +1,19 @@
+import { ${entity.getName()} } from '../${entity.getSnakeCaseName()}.entity';
+import { Find${entity.getName()}Dto } from './find-${entity.getSnakeCaseName()}.dto';
+import { Create${entity.getName()}Dto } from './create-${entity.getSnakeCaseName()}.dto';
+
+export class ${entity.getName()}Mapper {
+  static toFindDto(entity: ${entity.getName()}): Find${entity.getName()}Dto {
+    return {
+#foreach( ${property} in ${entity.getProperties()})
+      ${property.getApiPattern()}: entity.${property.getName()},#end
+    } as Find${entity.getName()}Dto;
+  }
+
+  static fromCreateDto(dto: Create${entity.getName()}Dto): ${entity.getName()} {
+    return {
+#foreach( ${property} in ${entity.getProperties()})
+      ${property.getName()}: dto.${property.getApiPattern()},#end
+    } as ${entity.getName()};
+  }
+}

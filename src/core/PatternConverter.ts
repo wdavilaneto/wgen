@@ -62,8 +62,8 @@ export class PatternConverter {
     return toPascalCase(input);
   }
 
-  toSnakeCase(input: string) {
-    return toSnakeCase(input);
+  toSnakeCase(input: string, separator: string = "-") {
+    return toSnakeCase(input, separator);
   }
 
   getTableNameWithoutPrefix(table: Table) {
@@ -111,7 +111,7 @@ export class PatternConverter {
       NVARCHAR2: "string",
       VARCHAR: "string",
       CLOB: "string",
-      BLOB: "Blob",
+      BLOB: "string",
       RAW: "AnyObject",
       "LONG RAW": "number",
       NCHAR: "string",

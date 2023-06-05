@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ${entity.getName()} } from './${entity.getSnakeCaseName()}.entity';
 import { ${entity.getName()}Service } from './${entity.getSnakeCaseName()}.service';
 import { ${entity.getName()}Controller } from './${entity.getSnakeCaseName()}.controller';
 
 @Module({
+  imports: [TypeOrmModule.forFeature([${entity.getName()}])],
   controllers: [${entity.getName()}Controller],
   providers: [${entity.getName()}Service],
 })

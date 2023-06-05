@@ -31,17 +31,15 @@ export default class TemplateEngine {
   public async run() {
     const templates = await this.fileTemaplte.getAllTemplates();
     for (const template of templates) {
-      if (template.isPerEntity) {
+      if (template.isPerEntity()) {
         for (const entity of this.context.entities) {
           const result = velocityjs.render(template.getContent(), { entity: entity }, {});
-          const cleanedResult = result
-            .replace(/(\r)/gm, "")
-            .replace(/(\n\n)/gm, "\n")
-            .replace(/(\n\n)/gm, "\n");
+          const cleanedResult = result.replace(/(\r)/gm, "").replace(/(\n\n)/gm, "\n");
+          console.log(template.getOutput(entity.name));
           fse.outputFile(template.getOutput(entity.name), cleanedResult, { encoding: "utf8" });
         }
       } else {
-        const result = velocityjs.render(template.getContent(), this.context, {});
+        const result = velocityjs.render(template.getContent(), { entities: this.context.entities }, {});
         const cleanedResult = result.replace(/(\r)/gm, "").replace(/(\n\n)/gm, "\n");
         fse.outputFile(template.getOutput(), cleanedResult, { encoding: "utf8" });
       }

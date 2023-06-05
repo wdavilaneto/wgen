@@ -4,19 +4,20 @@ import {
   Column,
   ManyToOne,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { ColumnCommonOptions } from 'typeorm/decorator/options/ColumnCommonOptions';
 #foreach ( ${property} in ${entity.getDistinctedAllComplexProperties()} )
-import { ${property.getType()} } from '../${property.getSnakeCaseType()}/${property.getSnakeCaseType()}.entity';#end
+import { ${property.getType()} } from './${property.getSnakeCaseType()}.entity';#end
 
-@Entity({ name: '${entity.getName()}' })
+
+@Entity({ name: '${entity.table.getName()}' })
 export class ${entity.getName()} {
   @PrimaryGeneratedColumn({ name: '${entity.table.getPk()[0].name}' })
   public id: any;
 #foreach( ${property} in ${entity.getProperties()})
   @Column({
-    name: '${property.getColumn().getName()}',
-    type: '${property.getColumn().getType()}',#if(!${property.isNullable()})
+    name: '${property.getColumn().getName()}',#if(!${property.isNullable()})
     nullable: false,#else
     nullable: true,#end
   } as ColumnCommonOptions)
@@ -26,14 +27,20 @@ export class ${entity.getName()} {
 #foreach( ${property} in ${entity.id.getProperties()})
   public id_${property.getName()}: ${property.getType()};#end
 #foreach( ${property} in ${entity.getManyToOneProperties()})
-  @OneToMany(() => ${property.getType()}, (otherEntity: ${property.getType()}) => otherEntity.${property.mappedBy})
+  @ManyToOne(() => ${property.getType()}, { eager: true })
+#if( ${property.getConstraint().isSingleColumn()})
+  @JoinColumn({ name: '#if(${property.getConstraint().getSingleColumnPair().column})${property.getConstraint().getSingleColumnPair().column.name}#{else}${property.referedEntity.table.getPk()[0].name}#{end}' })#else
+    @JoinColumns( [#foreach( ${columnPair} in ${property.constraint.columnPairs})
+      {name: "${columnPair.column.name}"},#end
+    ])#end
+
   public $property.getName(): ${property.getType()};#end
 #foreach( ${property} in ${entity.getOneToManyProperties()})
-  @ManyToOne(
-    () => ${property.getType()},
-    (${property.referedEntity.getBeanPattern()}: ${property.getType()}) => ${property.referedEntity.getBeanPattern()}.${property.mappedBy},
-  )
-  public $property.getName(): ${property.getType()}[] = [];#end
+##  @OneToMany(
+##    () => ${property.getType()},
+##    (${property.referedEntity.getBeanPattern()}: ${property.getType()}) => ${property.referedEntity.getBeanPattern()}.${property.mappedBy},
+##  )
+  public $property.getName(): ${property.getType()}[];#end
 #foreach( ${property} in ${entity.getManyToManyProperties()})
-  public ${property.getName()}: ${property.getReferedEntity().getType()}[] = [];#end
+  public ${property.getName()}: ${property.getReferedEntity().getType()}[] ;#end
 }
